@@ -1,0 +1,219 @@
+{{- define "main" }}
+<div class="custom-404-container">
+    <div class="animation-wrapper">
+        <!-- Animated Tech / Hardware Circuit Visual -->
+        <div class="tech-radar">
+            <div class="radar-sweep"></div>
+            <div class="radar-core">
+                <svg class="chip-icon" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <!-- CPU Chip body -->
+                    <rect x="16" y="16" width="32" height="32" rx="4" class="chip-body"></rect>
+                    <!-- Core -->
+                    <rect x="24" y="24" width="16" height="16" rx="2" class="chip-inner"></rect>
+                    <!-- Pins Top -->
+                    <line x1="22" y1="8" x2="22" y2="16"></line>
+                    <line x1="32" y1="8" x2="32" y2="16"></line>
+                    <line x1="42" y1="8" x2="42" y2="16"></line>
+                    <!-- Pins Bottom -->
+                    <line x1="22" y1="48" x2="22" y2="56"></line>
+                    <line x1="32" y1="48" x2="32" y2="56"></line>
+                    <line x1="42" y1="48" x2="42" y2="56"></line>
+                    <!-- Pins Left -->
+                    <line x1="8" y1="22" x2="16" y2="22"></line>
+                    <line x1="8" y1="32" x2="16" y2="32"></line>
+                    <line x1="8" y1="42" x2="16" y2="42"></line>
+                    <!-- Pins Right -->
+                    <line x1="48" y1="22" x2="56" y2="22"></line>
+                    <line x1="48" y1="32" x2="56" y2="32"></line>
+                    <line x1="48" y1="42" x2="56" y2="42"></line>
+                </svg>
+            </div>
+            <div class="signal-dot dot-1"></div>
+            <div class="signal-dot dot-2"></div>
+            <div class="signal-dot dot-3"></div>
+        </div>
+
+        <div class="glitch-title" data-text="404">404</div>
+    </div>
+
+    <div class="message-wrapper">
+        <h2 class="passion-statement">I am an engineer with a passion in tech.</h2>
+        <p class="status-detail">Looks like this route went offline or never existed in the cluster.</p>
+        <a class="home-btn" href="{{ "" | absLangURL }}">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            Return Home
+        </a>
+    </div>
+</div>
+
+<style>
+.custom-404-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-height: 60vh;
+    padding: 2rem 1rem;
+}
+
+.animation-wrapper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+}
+
+/* Radar & Circuit Pulse Animation */
+.tech-radar {
+    position: relative;
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    border: 2px dashed var(--tertiary, #666);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(circle, rgba(120, 120, 140, 0.08) 0%, transparent 70%);
+    animation: rotateRadar 16s linear infinite;
+    margin-bottom: 1rem;
+}
+
+@keyframes rotateRadar {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.radar-sweep {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border-top: 2px solid var(--primary, #00ffaa);
+    animation: sweepPulse 2.5s ease-in-out infinite;
+}
+
+@keyframes sweepPulse {
+    0%, 100% { opacity: 0.3; transform: scale(0.95); }
+    50% { opacity: 1; transform: scale(1.05); }
+}
+
+.radar-core {
+    width: 70px;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: floatChip 3s ease-in-out infinite alternate;
+}
+
+.chip-icon {
+    width: 56px;
+    height: 56px;
+    color: var(--primary, #fff);
+    filter: drop-shadow(0 0 8px rgba(100, 160, 255, 0.4));
+}
+
+@keyframes floatChip {
+    0% { transform: translateY(-4px); }
+    100% { transform: translateY(4px); }
+}
+
+/* Signal dots mimicking blinking hardware status LEDs */
+.signal-dot {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: var(--primary, #00ffaa);
+    box-shadow: 0 0 6px var(--primary, #00ffaa);
+}
+
+.dot-1 {
+    top: 15px;
+    left: 25px;
+    animation: blink 1.2s infinite ease-in-out;
+}
+
+.dot-2 {
+    bottom: 20px;
+    right: 25px;
+    animation: blink 1.8s infinite ease-in-out 0.4s;
+}
+
+.dot-3 {
+    top: 35px;
+    right: 15px;
+    animation: blink 1.4s infinite ease-in-out 0.8s;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 0.2; transform: scale(0.8); }
+    50% { opacity: 1; transform: scale(1.3); }
+}
+
+/* 404 Glitch Pulse Typography */
+.glitch-title {
+    font-size: 4.5rem;
+    font-weight: 800;
+    letter-spacing: 0.15em;
+    line-height: 1;
+    color: var(--primary, #fff);
+    text-shadow: 2px 2px 0px rgba(100, 150, 255, 0.3);
+    animation: subtleGlitch 3s infinite;
+}
+
+@keyframes subtleGlitch {
+    0%, 100% { transform: translate(0); }
+    20% { transform: translate(-2px, 1px); }
+    40% { transform: translate(2px, -1px); }
+    60% { transform: translate(-1px, -1px); }
+    80% { transform: translate(1px, 1px); }
+}
+
+/* Message styling */
+.message-wrapper {
+    max-width: 540px;
+    margin: 0 auto;
+}
+
+.passion-statement {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 0.5rem 0 0.75rem 0;
+    color: var(--primary, #fff);
+}
+
+.status-detail {
+    font-size: 1rem;
+    color: var(--secondary, #888);
+    margin-bottom: 1.75rem;
+}
+
+/* Button */
+.home-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.65rem 1.4rem;
+    background: var(--entry, #2e2e33);
+    color: var(--primary, #fff);
+    border: 1px solid var(--tertiary, #444);
+    border-radius: var(--radius, 8px);
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.home-btn:hover {
+    background: var(--tertiary, #444);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+</style>
+{{- end }}

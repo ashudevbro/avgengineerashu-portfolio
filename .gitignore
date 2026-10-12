@@ -1,0 +1,12 @@
+# Hugo build directory
+public/
+resources/_gen/
+.hugo_build.lock
+
+# OS and Editor metadata
+.DS_Store
+Thumbs.db
+*.swp
+*~
+.vscode/
+.idea/

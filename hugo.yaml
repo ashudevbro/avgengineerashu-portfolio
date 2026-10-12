@@ -1,0 +1,69 @@
+baseURL: http://localhost:1313/
+locale: en-us
+title: AvgEngineersAshu
+theme: ["PaperMod"]
+
+pagination:
+  pagerSize: 5
+
+enableRobotsTXT: true
+
+menu:
+  main:
+    - identifier: about
+      name: About
+      url: /about/
+      weight: 10
+    - identifier: blog
+      name: Blog
+      url: /blog/
+      weight: 20
+    - identifier: youtube
+      name: YouTube
+      url: /youtube/
+      weight: 30
+
+params:
+  env: production
+  title: AvgEngineersAshu
+  description: "Tech enthusiast with a passion in tech and hardware — backend, frontend, devops, cloud, agents, AI, homelabbing, tinkering."
+  author: AvgEngineersAshu
+  defaultTheme: auto
+  disableThemeToggle: false
+  ShowReadingTime: true
+  ShowShareButtons: true
+  ShowPostNavLinks: true
+  ShowBreadCrumbs: true
+  ShowCodeCopyButtons: true
+  ShowWordCount: true
+  ShowRssButtonInSectionTermList: true
+
+  footer:
+    hideCopyright: true
+
+  mainSections:
+    - blog
+
+  profileMode:
+    enabled: true
+    title: "AvgEngineersAshu"
+    subtitle: "An engineer fueled by curiosity for hardware and systems. Building across homelabs, cloud, and AI. Sharing experiments on YouTube & Instagram purely for the love of tech."
+    buttons:
+      - name: "About"
+        url: "/about/"
+      - name: "Blog & Notes"
+        url: "/blog/"
+      - name: "YouTube"
+        url: "/youtube/"
+
+  socialIcons:
+    - name: youtube
+      url: "https://www.youtube.com/@avgengineerashu"
+    - name: instagram
+      url: "https://www.instagram.com/AvgEngineersAshu"
+    - name: x
+      url: "https://x.com/AvgEngineersAshu"
+    - name: reddit
+      url: "https://www.reddit.com/user/AvgEngineersAshu"
+    - name: github
+      url: "https://github.com/ashudevbro"

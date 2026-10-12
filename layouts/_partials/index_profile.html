@@ -1,0 +1,456 @@
+<div class="profile">
+    {{- with site.Params.profileMode }}
+    <div class="profile_inner">
+        {{- if .imageUrl -}}
+        {{- $img := "" }}
+        {{- if not (urls.Parse .imageUrl).IsAbs }}
+            {{- $img = resources.Get .imageUrl }}
+        {{- end }}
+        {{- if $img }}
+            {{- $processableFormats := (slice "jpg" "jpeg" "png" "tif" "bmp" "gif") -}}
+            {{- if hugo.IsExtended -}}
+                {{- $processableFormats = $processableFormats | append "webp" -}}
+            {{- end -}}
+            {{- $prod := (hugo.IsProduction | or (eq site.Params.env "production")) }}
+            {{- if and (in $processableFormats $img.MediaType.SubType) (eq $prod true)}}
+                {{- if (not (and (not .imageHeight) (not .imageWidth))) }}
+                    {{- $img = $img.Resize (printf "%dx%d" .imageWidth .imageHeight) }}
+                {{- else if .imageHeight }}
+                    {{- $img = $img.Resize (printf "x%d" .imageHeight) }}
+                {{ else if .imageWidth }}
+                    {{- $img = $img.Resize (printf "%dx" .imageWidth) }}
+                {{ else }}
+                    {{- $img = $img.Resize "150x150" }}
+                {{- end }}
+            {{- end }}
+            <img draggable="false" src="{{ $img.Permalink }}" alt="{{ .imageTitle | default "profile image" }}" title="{{ .imageTitle }}"
+                height="{{ .imageHeight | default 150 }}" width="{{ .imageWidth | default 150 }}" />
+        {{- else }}
+        <img draggable="false" src="{{ .imageUrl | absURL }}" alt="{{ .imageTitle | default "profile image" }}" title="{{ .imageTitle }}"
+            height="{{ .imageHeight | default 150 }}" width="{{ .imageWidth | default 150 }}" />
+        {{- end }}
+        {{- end }}
+        <h1>{{ .title | default site.Title | markdownify }}</h1>
+        <span>{{ .subtitle | markdownify }}</span>
+        {{- partial "social_icons.html" -}}
+
+        {{- with .buttons }}
+        <div class="buttons">
+            {{- range . }}
+            <a class="button" href="{{ trim .url " " }}" rel="noopener" title="{{ .name }}">
+                <span class="button-inner">
+                    {{ .name }}
+                    {{- if (findRE "://" .url) }}&nbsp;
+                    <svg fill="none" shape-rendering="geometricPrecision" stroke="currentColor" stroke-linecap="round"
+                        stroke-linejoin="round" stroke-width="2.5" viewBox="0 0 24 24" height="14" width="14">
+                        <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"></path>
+                        <path d="M15 3h6v6"></path>
+                        <path d="M10 14L21 3"></path>
+                    </svg>
+                    {{- end }}
+                </span>
+            </a>
+            {{- end }}
+        </div>
+        {{- end }}
+
+        <!-- Interactive Homelab Terminal -->
+        <div class="homelab-terminal">
+            <div class="terminal-header">
+                <div class="terminal-dots">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <div class="terminal-title">ashu@homelab: ~ (bash)</div>
+                <div class="terminal-status">LIVE</div>
+            </div>
+
+            <!-- Command Quick Chips -->
+            <div class="terminal-quick-actions">
+                <span class="quick-label">Try:</span>
+                <button type="button" class="chip" data-cmd="neofetch">neofetch</button>
+                <button type="button" class="chip" data-cmd="status">status</button>
+                <button type="button" class="chip" data-cmd="stack">stack</button>
+                <button type="button" class="chip" data-cmd="homelab">homelab</button>
+                <button type="button" class="chip" data-cmd="help">help</button>
+                <button type="button" class="chip" data-cmd="clear">clear</button>
+            </div>
+
+            <!-- Terminal Body -->
+            <div class="terminal-body" id="term-body">
+                <div class="term-line welcome-line">
+                    <span class="term-dim">AvgEngineersAshu Homelab Terminal v1.0.0</span><br>
+                    Type a command or click one above to explore the lab:
+                </div>
+            </div>
+
+            <!-- Terminal Input Line -->
+            <form class="terminal-prompt-line" id="term-form" onsubmit="return false;">
+                <span class="prompt-user">ashu@homelab</span><span class="prompt-sep">:</span><span class="prompt-path">~</span><span class="prompt-char">$</span>
+                <input type="text" id="term-input" class="term-input" autocomplete="off" spellcheck="false" placeholder="type 'help'..." aria-label="Terminal input">
+            </form>
+        </div>
+    </div>
+    {{- end}}
+</div>
+
+<style>
+/* Homelab Terminal Styling */
+.homelab-terminal {
+    margin-top: 2rem;
+    width: 100%;
+    max-width: 640px;
+    background: var(--entry, #1d1e20);
+    border: 1px solid var(--border, #333);
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    text-align: left;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 0.85rem;
+}
+
+.terminal-header {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 0.5rem 0.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border, #333);
+}
+
+.terminal-dots {
+    display: flex;
+    gap: 6px;
+}
+
+.terminal-dots .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.dot.red { background: #ff5f56; }
+.dot.yellow { background: #ffbd2e; }
+.dot.green { background: #27c93f; }
+
+.terminal-title {
+    font-size: 0.75rem;
+    color: var(--secondary, #888);
+    letter-spacing: 0.05em;
+}
+
+.terminal-status {
+    font-size: 0.65rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: rgba(39, 201, 63, 0.2);
+    color: #27c93f;
+    font-weight: 600;
+}
+
+.terminal-quick-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    padding: 0.5rem 0.8rem;
+    background: rgba(0, 0, 0, 0.1);
+    border-bottom: 1px dashed var(--border, #333);
+}
+
+.quick-label {
+    font-size: 0.72rem;
+    color: var(--secondary, #888);
+}
+
+.chip {
+    background: var(--theme, #2e2e33);
+    color: var(--primary, #fff);
+    border: 1px solid var(--border, #444);
+    border-radius: 4px;
+    padding: 2px 7px;
+    font-size: 0.72rem;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.chip:hover {
+    background: var(--tertiary, #555);
+    border-color: var(--primary, #00ffaa);
+    transform: translateY(-1px);
+}
+
+.terminal-body {
+    padding: 0.8rem;
+    max-height: 240px;
+    overflow-y: auto;
+    line-height: 1.5;
+    color: var(--content, #ccc);
+}
+
+.term-line {
+    margin-bottom: 0.4rem;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.term-cmd-echo {
+    color: var(--secondary, #888);
+    margin-bottom: 0.2rem;
+}
+
+.term-cmd-echo .echo-prompt {
+    color: var(--primary, #00ffaa);
+}
+
+.term-cmd-echo .echo-text {
+    color: var(--primary, #fff);
+    font-weight: 600;
+}
+
+.term-dim {
+    color: var(--secondary, #888);
+}
+
+.term-accent {
+    color: #64b5f6;
+    font-weight: 600;
+}
+
+.term-success {
+    color: #81c784;
+}
+
+.terminal-prompt-line {
+    display: flex;
+    align-items: center;
+    padding: 0.4rem 0.8rem 0.7rem;
+    background: transparent;
+}
+
+.prompt-user {
+    color: #81c784;
+    font-weight: 600;
+}
+
+.prompt-sep {
+    color: var(--secondary, #888);
+}
+
+.prompt-path {
+    color: #64b5f6;
+    font-weight: 600;
+}
+
+.prompt-char {
+    color: var(--primary, #fff);
+    margin: 0 6px 0 2px;
+}
+
+.term-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--primary, #fff);
+    font-family: inherit;
+    font-size: 0.85rem;
+    caret-color: var(--primary, #00ffaa);
+}
+
+.term-input::placeholder {
+    color: var(--tertiary, #666);
+}
+</style>
+
+<script>
+(function() {
+    const termBody = document.getElementById('term-body');
+    const termInput = document.getElementById('term-input');
+    const termForm = document.getElementById('term-form');
+    const chips = document.querySelectorAll('.chip');
+
+    if (!termBody || !termInput) return;
+
+    const commands = {
+        help: function() {
+            return `Core Commands:
+  • neofetch  : System architecture & hardware specs
+  • status    : Live lab health & workbench status
+  • stack     : Languages, frameworks & cloud tooling
+  • homelab   : Current nodes & virtualization history
+  • about     : Core philosophy & mission
+  • clear     : Clear terminal screen
+
+Standard Utilities:
+  • whoami    : Print current user identity
+  • pwd       : Print working directory
+  • ls        : List files in workspace
+  • cat <file>: Read file (e.g. 'cat philosophy.txt')
+  • uname     : System architecture & kernel info
+  • date      : Current system time
+  • uptime    : Display homelab uptime
+  • ping      : Test network latency
+  • docker    : View active containers
+  • sudo      : Request superuser privileges`;
+        },
+        neofetch: function() {
+            return `   /\\         ashu@homelab
+  /  \\        ────────────
+ / /\\ \\       OS: Omarchy (Arch Linux) / Win11 WSL2
+/ /__\\ \\      Host: Hybrid Homelab Environment
+\\/____\\/      Daily Driver: Core i3 Laptop [Docker + Portainer]
+              Desktop PC: Ryzen 7 9700X / 32GB RAM / RTX 4060
+              Hypervisor Roots: Proxmox VE, TrueNAS, CasaOS
+              Editor: Neovim (nvim) / Nano
+              Primary Stack: Python, Java, Docker, DevOps, SQL`;
+        },
+        status: function() {
+            return `System Health: 🟢 ALL NODES OPERATIONAL
+  • Laptop Node   : Online [Omarchy Arch Linux]
+  • Desktop Lab   : Online [Windows + WSL2 + Portainer Agent]
+  • Active Quest  : Advancing in DevOps & AI Agents
+  • Channel Motive: Pure Passion (YouTube: @avgengineerashu)
+  • GitHub        : https://github.com/ashudevbro`;
+        },
+        stack: function() {
+            return `Tech Arsenal:
+  [Languages] : Python, Java, SQL, JavaScript, C++
+  [Frameworks]: FastAPI, Flask, React
+  [DevOps]    : Docker, Portainer, Terraform, AWS, Azure, GCP
+  [Systems]   : Linux, UFW, Cockpit, systemd, Redis, Data Eng
+  [Workflow]  : Neovim, Git/GitHub, Kanban, System Design`;
+        },
+        homelab: function() {
+            return `Homelab Topology:
+  • Node 01 (Laptop) : i3 Daily Driver, Docker, Portainer
+  • Node 02 (Rig)    : Windows + WSL + Portainer Agent
+  • Previous Testing : Proxmox VE (Ubuntu labs, TrueNAS, CasaOS SMB,
+                       Win VM GPU passthrough, multi-node clustering)`;
+        },
+        about: function() {
+            return `Philosophy:
+  "Master becoming a solid 'average' engineer first before trying
+   to be a 'great' one. True engineering is about being an innovator
+   and an explorer who asks questions before taking action."`;
+        },
+        whoami: function() {
+            return `ashu (an engineer fueled by curiosity for hardware and systems)`;
+        },
+        pwd: function() {
+            return `/home/ashu/homelab`;
+        },
+        ls: function() {
+            return `total 42
+drwxr-xr-x 2 ashu homelab 4096 homelab/
+drwxr-xr-x 4 ashu homelab 4096 docker-compose/
+-rw-r--r-- 1 ashu homelab  312 philosophy.txt
+-rw-r--r-- 1 ashu homelab  524 stack.json
+-rwxr-xr-x 1 ashu homelab  128 tinker.sh`;
+        },
+        sudo: function(args) {
+            return `[sudo] password for ashu: 
+Permission denied: with great power comes great responsibility! 🎅`;
+        },
+        uname: function() {
+            return `Linux homelab 6.12.0-arch-tinker #1 SMP PREEMPT_DYNAMIC x86_64 GNU/Linux`;
+        },
+        date: function() {
+            return (new Date()).toLocaleString('en-US', { dateStyle: 'full', timeStyle: 'medium' });
+        },
+        uptime: function() {
+            return `up 42 days, 13:37, 1 user, load average: 0.18, 0.22, 0.19 (curiosity: 100%)`;
+        },
+        ping: function() {
+            return `PING localhost (127.0.0.1) 56(84) bytes of data:
+64 bytes from 127.0.0.1: icmp_seq=1 ttl=64 time=0.038 ms
+64 bytes from 127.0.0.1: icmp_seq=2 ttl=64 time=0.041 ms
+--- localhost ping statistics ---
+2 packets transmitted, 2 received, 0% packet loss`;
+        },
+        docker: function() {
+            return `CONTAINER ID   IMAGE                 STATUS         PORTS
+7f82b1c3a09e   portainer/agent       Up 42 days     0.0.0.0:9001->9001/tcp
+3e12c8a9f01b   devops-sandbox:latest Up 12 hours    0.0.0.0:8000->8000/tcp`;
+        },
+        cat: function(args) {
+            const file = (args[0] || '').toLowerCase();
+            if (file === 'philosophy.txt' || file === 'philosophy') {
+                return `"Master becoming a solid 'average' engineer first before trying to be a 'great' one. True engineering is about being an innovator and an explorer who asks questions before taking action."`;
+            } else if (file === 'tinker.sh' || file === 'tinker') {
+                return `#!/bin/bash\nwhile true; do learn; break_things; fix; innovate; done`;
+            } else if (file === 'stack.json' || file === 'stack') {
+                return `{\n  "primary": ["python", "java", "docker", "devops", "wsl", "proxmox"],\n  "passion": "100%"\n}`;
+            }
+            return `cat: ${args[0] || 'missing file operand'}: No such file. Try: cat philosophy.txt`;
+        },
+        clear: function() {
+            termBody.innerHTML = '';
+            return null;
+        }
+    };
+
+    function runCmd(rawCmd) {
+        const trimmed = rawCmd.trim();
+        if (!trimmed) return;
+
+        const parts = trimmed.split(/\s+/);
+        const cmd = parts[0].toLowerCase();
+        const args = parts.slice(1);
+
+        // Echo command
+        const echoDiv = document.createElement('div');
+        echoDiv.className = 'term-line term-cmd-echo';
+        echoDiv.innerHTML = '<span class="echo-prompt">ashu@homelab:~$</span> <span class="echo-text">' + escapeHtml(rawCmd) + '</span>';
+        termBody.appendChild(echoDiv);
+
+        if (commands.hasOwnProperty(cmd)) {
+            const output = commands[cmd](args);
+            if (output !== null) {
+                const outDiv = document.createElement('div');
+                outDiv.className = 'term-line';
+                outDiv.textContent = output;
+                termBody.appendChild(outDiv);
+            }
+        } else {
+            const errDiv = document.createElement('div');
+            errDiv.className = 'term-line';
+            errDiv.innerHTML = '<span style="color:#ff6b6b;">command not found: ' + escapeHtml(cmd) + '</span>. Type <span class="term-accent">help</span> for a list of commands.';
+            termBody.appendChild(errDiv);
+        }
+
+        termBody.scrollTop = termBody.scrollHeight;
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // Enter key handling
+    termInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const val = termInput.value;
+            termInput.value = '';
+            runCmd(val);
+        }
+    });
+
+    // Quick chip buttons
+    chips.forEach(function(chip) {
+        chip.addEventListener('click', function() {
+            const cmd = this.getAttribute('data-cmd');
+            if (cmd) {
+                termInput.value = '';
+                runCmd(cmd);
+                termInput.focus();
+            }
+        });
+    });
+})();
+</script>
